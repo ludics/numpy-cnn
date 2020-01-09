@@ -3,6 +3,7 @@
 # Created by: ludi
 # Created on: 2020/1/8
 
+
 import numpy as np
 import os
 from utils.load_mnist import get_mnist
@@ -14,6 +15,7 @@ if not os.path.exists('./logs'):
 log = Logger('./logs/train.log',level='debug').logger
 
 if __name__ == "__main__":
+    data = get_mnist('./data/mnist')
 
     log.info('Just test')
 
