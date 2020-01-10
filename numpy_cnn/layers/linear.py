@@ -18,6 +18,7 @@ class Linear(Layer):
             "b": Tensor(b)}
         self.inputs = None
         self.requires_grad = requires_grad
+        self.shape = (num_in, num_out)
 
     def forward(self, inputs):
         self.inputs = inputs
@@ -29,6 +30,9 @@ class Linear(Layer):
             self.params['w'].grad = np.dot(self.inputs.T, grad)
             self.params['b'].grad = np.sum(grad, axis=0)
         return np.dot(grad, self.params['w'].T)
+
+    def __repr__(self):
+        return self.name + ': ' + str(self.shape)
 
 
 

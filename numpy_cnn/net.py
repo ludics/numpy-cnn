@@ -33,3 +33,11 @@ class Net(Layer):
         if layer.name == "Linear":
             self.parameters.append(layer.params['w'])
             self.parameters.append(layer.params['b'])
+
+    def __repr__(self):
+        ret_str = '\n\tNet arch:\n'
+        for layer in self.layers:
+            ret_str += '\t\t' + layer.__repr__() + '\n'
+        return ret_str
+
+

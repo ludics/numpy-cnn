@@ -20,7 +20,6 @@ class ReLU(Layer):
         grad[self.x < 0] = 0
         return grad
 
-
 class Sigmoid(Layer):
     def __init__(self):
         super().__init__("Sigmoid")

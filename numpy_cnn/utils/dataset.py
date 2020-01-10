@@ -7,8 +7,11 @@
 import numpy as np
 import struct
 import os
-from PIL import Image
-import torch
+from .mylog import Logger
+
+if not os.path.exists('./logs'):
+    os.makedirs('./logs')
+log = Logger('./logs/dataset.log',level='debug').logger
 
 
 def decode_idx3_ubyte(idx3_ubyte_file):
@@ -24,17 +27,17 @@ def decode_idx3_ubyte(idx3_ubyte_file):
     offset = 0
     fmt_header = '>iiii'   #'>IIII'是说使用大端法读取4个unsinged int32
     magic_number, num_images, num_rows, num_cols = struct.unpack_from(fmt_header, bin_data, offset)
-    print('魔数:%d, 图片数量: %d张, 图片大小: %d*%d' % (magic_number, num_images, num_rows, num_cols))
+    # print('魔数:%d, 图片数量: %d张, 图片大小: %d*%d' % (magic_number, num_images, num_rows, num_cols))
 
     # 解析数据集
     image_size = num_rows * num_cols
     offset += struct.calcsize(fmt_header)
-    print("offset: ",offset)
+    # print("offset: ",offset)
     fmt_image = '>' + str(image_size) + 'B'   # '>784B'的意思就是用大端法读取784个unsigned byte
     images = np.empty((num_images, num_rows*num_cols))
     for i in range(num_images):
-        if (i + 1) % 10000 == 0:
-            print('已解析 %d' % (i + 1) + '张')
+        # if (i + 1) % 10000 == 0:
+        # print('已解析 %d' % (i + 1) + '张')
         images[i] = np.array(struct.unpack_from(fmt_image, bin_data, offset)).reshape((num_rows*num_cols))
         offset += struct.calcsize(fmt_image)
     return images
@@ -53,21 +56,22 @@ def decode_idx1_ubyte(idx1_ubyte_file):
     offset = 0
     fmt_header = '>ii'
     magic_number, num_images = struct.unpack_from(fmt_header, bin_data, offset)
-    print('魔数:%d, 图片数量: %d张' % (magic_number, num_images))
+    # print('魔数:%d, 图片数量: %d张' % (magic_number, num_images))
 
     # 解析数据集
     offset += struct.calcsize(fmt_header)
     fmt_image = '>B'
     labels = np.empty(num_images)
     for i in range(num_images):
-        if (i + 1) % 10000 == 0:
-            print('已解析 %d' % (i + 1) + '张')
+        # if (i + 1) % 10000 == 0:
+            # print('已解析 %d' % (i + 1) + '张')
         labels[i] = struct.unpack_from(fmt_image, bin_data, offset)[0]
         offset += struct.calcsize(fmt_image)
     return labels
 
 
-def get_mnist(mnist_path, resize=None):
+def load_mnist(mnist_path, resize=None):
+    log.info('Load MNIST Dataset ...')
     train_images_file = os.path.join(mnist_path, 'train-images-idx3-ubyte')
     train_labels_file = os.path.join(mnist_path, 'train-labels-idx1-ubyte')
     test_images_file = os.path.join(mnist_path,'t10k-images-idx3-ubyte')
@@ -87,39 +91,19 @@ def get_mnist(mnist_path, resize=None):
     return train_images, train_labels, test_images, test_labels
 
 
-class BatchIterator():
-
-    def __init__(self, batch_size=32, shuffle=True):
-        self.batch_size = batch_size
-        self.shuffle = shuffle
-
-    def __call__(self, inputs, targets):
-        starts = np.arange(0, len(inputs), self.batch_size)
-        if self.shuffle:
+def batch_iterator(inputs, targets, batch_size=32, shuffle=True):
+        starts = np.arange(0, len(inputs), batch_size)
+        if shuffle:
             idx = np.arange(len(inputs))
             np.random.shuffle(idx)
             inputs = inputs[idx]
             targets = targets[idx]
 
         for start in starts:
-            end = start + self.batch_size
+            end = start + batch_size
             batch_inputs = inputs[start: end]
             batch_targets = targets[start: end]
             yield (batch_inputs, batch_targets)
-
-
-
-
-def img_resize(data, re=None):
-    ret_list = []
-    if re:
-        for img in data:
-            img = Image.fromarray(np.array(img[0]))
-            im = torch.tensor(np.array(img.resize((re, re)))).view(-1, 1, re, re)
-            ret_list.append(im)
-        return torch.cat(ret_list, 0)
-    else:
-        return data
 
 
 def select_two_labels(data, label_sel = (0, 1)):

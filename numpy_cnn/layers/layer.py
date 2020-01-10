@@ -11,6 +11,9 @@ class Layer(metaclass=ABCMeta):
     def __init__(self, name):
         self.name = name
 
+    def __repr__(self):
+        return self.name
+
     @abstractmethod
     def forward(self, *args):
         pass
