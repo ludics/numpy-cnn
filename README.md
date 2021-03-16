@@ -60,13 +60,17 @@ test_preds = net.forward(X_test)
 损失函数需要计算损失值与关于预测值的梯度。因为要解决分类问题，我们实现了多分类问题中常用的 Softmax 交叉熵损失函数。
 
 设模型的输出为 $o$，类别数为 $K$，可以使用 Softmax 计算概率分布，结果为
+
 $$
 \hat{y}_k = \frac{\exp(o_k)}{\sum_{k=1}^K \exp(o_k)}
 $$
+
 而多分类下的交叉熵损失为
+
 $$
 J_{CE}(y,\hat{y}) = -\sum_{i=1}^N\sum_{k=1}^K y^{(i)}_k \log(\hat{y}^{(i)}_k)=-\sum_{i=1}^N \log(\hat{y}^{(i)}_c) = -\sum_{i=1}^N (o^{(i)}_c - \log(\sum_{k=1}^K\exp(o^{(i)}_k)))
 $$
+
 其中 $N$ 为样本数目，$c$ 表示真实类别。再求交叉熵损失 $J_{CE}$ 关于 $o$ 的梯度即可。
 
 ### 优化器
