@@ -11,14 +11,14 @@ class Linear(Layer):
     def __init__(self, num_in, num_out, requires_grad=True, **kwargs):
         super().__init__("Linear")
         # w = np.random.randn(*(num_in, num_out)) * (2 / num_in**0.5)
-        w = xavier_uniform(num_in, num_out)
+        self.shape = (num_in, num_out)
+        w = xavier_uniform(self.shape)
         b = np.zeros(num_out)
         self.params = {
-            "w": Tensor(w),
-            "b": Tensor(b)}
+            "w": Tensor(w, requires_grad),
+            "b": Tensor(b, requires_grad)}
         self.inputs = None
         self.requires_grad = requires_grad
-        self.shape = (num_in, num_out)
 
     def forward(self, inputs):
         self.inputs = inputs

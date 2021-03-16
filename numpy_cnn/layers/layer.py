@@ -35,6 +35,8 @@ class Tensor(object):
         return self.data.T
 
 
-def xavier_uniform(num_in, num_out):
+def xavier_uniform(shape):
+    num_in = shape[0] if len(shape) == 2 else np.prod(shape[1:])
+    num_out = shape[1] if len(shape) == 2 else shape[0]
     a = np.sqrt(6.0 / (num_in + num_out))
-    return np.random.uniform(low=-a, high=a, size=(num_in, num_out))
+    return np.random.uniform(low=-a, high=a, size=shape)
